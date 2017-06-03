@@ -4,7 +4,8 @@ var camera;
 
 function init(){
     scene = new THREE.Scene();
-    createFigure();
+    //createFigure();
+    createHaunter();
     createEnviroment();
     createRenderer();
     createCamera();
@@ -35,9 +36,9 @@ function createCamera(){
         window.innerWidth/ window.innerHeight,
         0.1, 1000);
     cameraControl = new THREE.OrbitControls(camera);
-    camera.position.x = 90;
-    camera.position.y = 32;
-    camera.position.z = 32;
+    camera.position.x = 300;
+    camera.position.y = 300;
+    camera.position.z = 300;
     camera.lookAt(scene.position);
 }
 
@@ -95,7 +96,7 @@ function createFigureMaterial(){
 
 
 function createEnviroment(){
-    var envGeometry = new THREE.SphereGeometry(90, 32, 32);
+    var envGeometry = new THREE.SphereGeometry(300, 300, 300);
     var envMaterial = new THREE.MeshBasicMaterial();
     envMaterial.map = THREE.ImageUtils.loadTexture('assets/galaxy_starfield.png');
     envMaterial.side = THREE.BackSide;
@@ -104,7 +105,7 @@ function createEnviroment(){
 }
 
 
-
+/*
 //OBJECTE
 function createFigure(){
     var material = new THREE.MeshPhongMaterial();
@@ -121,7 +122,35 @@ function createFigure(){
         scene.add(object);
     });
 }
+*/
 
+function createHaunter(){
+    var material = new THREE.MeshPhongMaterial();
+    loader = new THREE.OBJLoader();
+    loader.load('assets/haunter.obj', function(object){
+        object.traverse(function (child) {
+            if(child instanceof  THREE.Mesh){
+                child.material = createHaunterMaterial();
+                child.receiveShadow = true;
+                child.castShadow = true;
+                child.name = "model";
+            }
+        });
+        scene.add(object);
+    });
+}
+
+function createHaunterMaterial(){
+    var earthTexture = new THREE.Texture();
+    var loader = new THREE.ImageLoader();
+    loader.load('assets/HaunterTexture.jpg' , function(image) {
+        earthTexture.image = image;
+        earthTexture.needsUpdate = true;
+    });
+    var earthMaterial = new THREE.MeshPhongMaterial();
+    earthMaterial.map = earthTexture;
+    return earthMaterial;
+}
 
 
 
