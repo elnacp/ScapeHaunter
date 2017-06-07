@@ -1,22 +1,37 @@
 var renderer;
 var scene;
 var camera;
+var mouseX = 0;
+var mouseY = 0;
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
 
 function init(){
     scene = new THREE.Scene();
+    createCamera();
     //createFigure();
     createHaunter();
-    createEnviroment();
+    //createEnviroment();
     createRenderer();
-    createCamera();
     createLight();
-
     document.body.appendChild(renderer.domElement);
     render();
+    document.addEventListener('mousemove', onDocumentMouseMove, false);
+    document.addEventListener('key', keyFunction, false);
 }
+
+function onDocumentMouseMove(event){
+    mouseX = (event.clientX - windowHalfX) / 2;
+    mouseY = (event.clientY - windowHalfY) / 2;
+}
+
+window.addEventListener("keydown", function(e){
+    
+});
 
 function render(){
     cameraControl.update();
+    //scene.getObjectByName('character').getChildByName('model').scale = 0.5;
     //scene.getObjectByName('earth').rotation.y += 0.005;
     //scene.getObjectByName('nubes').rotation.y += 0.005;
     renderer.render(scene, camera);
@@ -36,9 +51,9 @@ function createCamera(){
         window.innerWidth/ window.innerHeight,
         0.1, 1000);
     cameraControl = new THREE.OrbitControls(camera);
-    camera.position.x = 300;
-    camera.position.y = 300;
-    camera.position.z = 300;
+    camera.position.x = 0;
+    camera.position.y = 100;
+    camera.position.z = 500;
     camera.lookAt(scene.position);
 }
 
@@ -52,7 +67,7 @@ function createLight(){
     //scene.add(spotLight);
 
     var directionalLight = new THREE.DirectionalLight(0xffffff,1);
-    directionalLight.position.set(100, 10, -50);
+    directionalLight.position.set(0, 500, 500);
     directionalLight.name = 'directional';
     scene.add(directionalLight);
 
@@ -96,7 +111,7 @@ function createFigureMaterial(){
 
 
 function createEnviroment(){
-    var envGeometry = new THREE.SphereGeometry(300, 300, 300);
+    var envGeometry = new THREE.SphereGeometry(500, 500, 500);
     var envMaterial = new THREE.MeshBasicMaterial();
     envMaterial.map = THREE.ImageUtils.loadTexture('assets/galaxy_starfield.png');
     envMaterial.side = THREE.BackSide;
@@ -136,6 +151,10 @@ function createHaunter(){
                 child.name = "model";
             }
         });
+        object.name = 'character';
+        object.position.set(0,0,100);
+        object.scale.set(0.25,0.25,0.25);
+        object.rotation.y = 3.25;
         scene.add(object);
     });
 }
