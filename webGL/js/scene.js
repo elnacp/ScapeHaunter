@@ -5,35 +5,138 @@ var mouseX = 0;
 var mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+var moveFront = false;
+var moveLeft = false;
+var moveRight = false;
+var moveBack = false;
+var x = 0;
+var y = 0;
+var z = 100;
+var c_x = 0;
+var c_y = 0;
+var c_z = 500;
+var lookAt = new THREE.Vector3(0,0,100);
+
+
+
 
 function init(){
     scene = new THREE.Scene();
+
     createCamera();
     //createFigure();
     createHaunter();
+    createEscenari();
+    //backgroundMusic();
     //createEnviroment();
     createRenderer();
     createLight();
     document.body.appendChild(renderer.domElement);
     render();
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
-    document.addEventListener('key', keyFunction, false);
+
 }
 
-function onDocumentMouseMove(event){
-    mouseX = (event.clientX - windowHalfX) / 2;
-    mouseY = (event.clientY - windowHalfY) / 2;
+function backgroundMusic(){
+    var listener = new THREE.AudioListener();
+    var audioLoader = new THREE.AudioLoader();
+    var sound2 = new THREE.PositionalAudio( listener );
+    audioLoader.load( 'assets/Cancion del titere.mp3', function( buffer ) {
+        sound2.setBuffer( buffer );
+        sound2.setRefDistance( 20 );
+        sound2.play();
+    });
 }
+
+
+/*window.addEventListener("keydown", function(e){
+
+});*/
 
 window.addEventListener("keydown", function(e){
-    
+    switch( e.key){
+        case 'w':
+            moveFront = true;
+            break;
+        case 'a':
+            moveLeft = true;
+            break;
+        case 'd':
+            moveRight = true;
+            break;
+        case 's':
+            moveBack = true;
+            break;
+    }
 });
+
+window.addEventListener("keyup", function(e){
+    switch( e.key){
+        case 'w':
+            moveFront = false;
+            break;
+        case 'a':
+            moveLeft = false;
+            break;
+        case 'd':
+            moveRight = false;
+            break;
+        case 's':
+            moveBack = false;
+            break;
+    }
+});
+
+function moveCharacter(){
+
+
+    if( moveFront == true){
+        lookAt.z -= 10;
+        camera.position.x = lookAt.x;
+        camera.position.y = lookAt.y;
+        camera.position.z = lookAt.z+400;
+        //camera.position.z -= 10;
+        scene.getObjectByName('character').position.z -= 10;
+        //console.log(scene.getObjectByName('character').position.z);
+    }
+    if( moveLeft == true){
+
+        lookAt.y += 0.05;
+        camera.position.x = lookAt.x;
+        camera.position.y = lookAt.y;
+        camera.position.z = lookAt.z+400;
+        scene.getObjectByName('character').rotation.y += 0.05;
+    }
+    if( moveRight == true){
+        lookAt.y -= 0.05;
+        camera.position.x = lookAt.x;
+        camera.position.y = lookAt.y;
+        camera.position.z = lookAt.z+400;
+        scene.getObjectByName('character').rotation.y -= 0.05;
+    }
+    if( moveBack == true){
+        lookAt.z += 10;
+        camera.position.x = lookAt.x;
+        camera.position.y = lookAt.y;
+        camera.position.z = lookAt.z+400;
+        //camera.position.z += 10;
+        scene.getObjectByName('character').position.z += 10;
+
+    }
+
+
+
+
+}
+
+
 
 function render(){
     cameraControl.update();
-    //scene.getObjectByName('character').getChildByName('model').scale = 0.5;
-    //scene.getObjectByName('earth').rotation.y += 0.005;
-    //scene.getObjectByName('nubes').rotation.y += 0.005;
+    moveCharacter();
+    //console.log(lookAt);
+    //camera.lookAt(lookAt);
+
+    //moveCamera();
     renderer.render(scene, camera);
     requestAnimationFrame(render);
 }
@@ -50,11 +153,13 @@ function createCamera(){
         45,
         window.innerWidth/ window.innerHeight,
         0.1, 1000);
+
     cameraControl = new THREE.OrbitControls(camera);
     camera.position.x = 0;
-    camera.position.y = 100;
+    camera.position.y = 0;
     camera.position.z = 500;
-    camera.lookAt(scene.position);
+    camera.lookAt(lookAt);
+
 }
 
 
@@ -120,24 +225,7 @@ function createEnviroment(){
 }
 
 
-/*
-//OBJECTE
-function createFigure(){
-    var material = new THREE.MeshPhongMaterial();
-    loader = new THREE.OBJLoader();
-    loader.load('assets/lee.obj', function(object){
-        object.traverse(function (child) {
-            if(child instanceof  THREE.Mesh){
-                child.material = createFigureMaterial();
-                child.receiveShadow = true;
-                child.castShadow = true;
-                child.name = "model";
-            }
-        });
-        scene.add(object);
-    });
-}
-*/
+
 
 function createHaunter(){
     var material = new THREE.MeshPhongMaterial();
@@ -169,6 +257,22 @@ function createHaunterMaterial(){
     var earthMaterial = new THREE.MeshPhongMaterial();
     earthMaterial.map = earthTexture;
     return earthMaterial;
+}
+
+function createEscenari(){
+
+    THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+    //var material = new THREE.MeshPhongMaterial();
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.load( 'Escenari.mtl', function( materials ) {
+        materials.preload();
+        var objLoader = new THREE.OBJLoader();
+        objLoader.setMaterials( materials );
+        objLoader.load( 'assets/Escenari.obj', function ( object ) {
+            object.position.y = - 95;
+            scene.add( object );
+        }, onProgress, onError );
+    });
 }
 
 
