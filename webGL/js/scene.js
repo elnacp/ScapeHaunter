@@ -18,13 +18,12 @@ var c_z = 500;
 var lookAt = new THREE.Vector3(0,0,100);
 var keyboard = {};
 var player = { height:1.8, speed:10, turnSpeed:Math.PI*10 };
-
+var meshes = {};
 
 
 
 function init(){
     scene = new THREE.Scene();
-
     createCamera();
     //createFigure();
     createHaunter();
@@ -61,36 +60,97 @@ function keyUp(event){
     keyboard[event.keyCode] = false;
 }
 
-window.addEventListener('keydown', keyDown);
-window.addEventListener('keyup', keyUp);
+
 
 function moveCharacter(){
-
+    var time = Date.now() * 0.0005;
     if(keyboard[87]){ // W key
         camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
         camera.position.z -= -Math.cos(camera.rotation.y) * player.speed;
+        meshes['character'].position.set(
+            camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+            camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+            camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75 -400
+        );
+        meshes['character'].rotation.set(
+            camera.rotation.x,
+            camera.rotation.y - Math.PI,
+            camera.rotation.z
+        );
     }
     if(keyboard[83]){ // S key
         camera.position.x += Math.sin(camera.rotation.y) * player.speed;
         camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
+        meshes['character'].position.set(
+            camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+            camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+            camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75-400
+        );
+        meshes['character'].rotation.set(
+            camera.rotation.x,
+            camera.rotation.y - Math.PI,
+            camera.rotation.z
+        );
     }
     if(keyboard[65]){ // A key
         // Redirect motion by 90 degrees
         camera.position.x += Math.sin(camera.rotation.y + Math.PI/2) * player.speed;
         camera.position.z += -Math.cos(camera.rotation.y + Math.PI/2) * player.speed;
+        meshes['character'].position.set(
+            camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+            camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+            camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75-400
+        );
+        meshes['character'].rotation.set(
+            camera.rotation.x,
+            camera.rotation.y - Math.PI,
+            camera.rotation.z
+        );
     }
     if(keyboard[68]){ // D key
         camera.position.x += Math.sin(camera.rotation.y - Math.PI/2) * player.speed;
         camera.position.z += -Math.cos(camera.rotation.y - Math.PI/2) * player.speed;
+        meshes['character'].position.set(
+            camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+            camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+            camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75-400
+        );
+        meshes['character'].rotation.set(
+            camera.rotation.x,
+            camera.rotation.y - Math.PI,
+            camera.rotation.z
+        );
     }
 
     // Keyboard turn inputs
     if(keyboard[37]){ // left arrow key
         camera.rotation.y -= player.turnSpeed;
+        meshes['character'].position.set(
+            camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+            camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+            camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75 -400
+        );
+        meshes['character'].rotation.set(
+            camera.rotation.x,
+            camera.rotation.y - Math.PI,
+            camera.rotation.z
+        );
     }
     if(keyboard[39]){ // right arrow key
         camera.rotation.y += player.turnSpeed;
+        meshes['character'].position.set(
+            camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+            camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+            camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75 -400
+        );
+        meshes['character'].rotation.set(
+            camera.rotation.x,
+            camera.rotation.y - Math.PI,
+            camera.rotation.z
+        );
     }
+
+
 
 }
 
@@ -99,10 +159,6 @@ function moveCharacter(){
 function render(){
     cameraControl.update();
     moveCharacter();
-    //console.log(lookAt);
-    //camera.lookAt(lookAt);
-
-    //moveCamera();
     renderer.render(scene, camera);
     requestAnimationFrame(render);
 }
@@ -130,12 +186,6 @@ function createCamera(){
 
 
 function createLight(){
-    //var spotLight = new THREE.SpotLight(0xffffff);
-    //spotLight.position.set(10,20,20);
-    //spotLight.shadow.camera.near = 20;
-    //spotLight.shadow.camera.far = 50;
-    //spotLight.castShadow = true;
-    //scene.add(spotLight);
 
     var directionalLight = new THREE.DirectionalLight(0xffffff,1);
     directionalLight.position.set(0, 500, 500);
@@ -191,8 +241,6 @@ function createEnviroment(){
 }
 
 
-
-
 function createHaunter(){
     var material = new THREE.MeshPhongMaterial();
     loader = new THREE.OBJLoader();
@@ -209,6 +257,7 @@ function createHaunter(){
         object.position.set(0,0,100);
         object.scale.set(0.25,0.25,0.25);
         object.rotation.y = 3.25;
+        meshes['character'] = object;
         scene.add(object);
     });
 }
@@ -236,3 +285,5 @@ function createEscenari(){
 
 init();
 
+window.addEventListener('keydown', keyDown);
+window.addEventListener('keyup', keyUp);
