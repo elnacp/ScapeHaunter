@@ -16,6 +16,8 @@ var c_x = 0;
 var c_y = 0;
 var c_z = 500;
 var lookAt = new THREE.Vector3(0,0,100);
+var keyboard = {};
+var player = { height:1.8, speed:10, turnSpeed:Math.PI*10 };
 
 
 
@@ -49,82 +51,46 @@ function backgroundMusic(){
 
 
 /*window.addEventListener("keydown", function(e){
+ });*/
 
-});*/
+function keyDown(event){
+    keyboard[event.keyCode] = true;
+}
 
-window.addEventListener("keydown", function(e){
-    switch( e.key){
-        case 'w':
-            moveFront = true;
-            break;
-        case 'a':
-            moveLeft = true;
-            break;
-        case 'd':
-            moveRight = true;
-            break;
-        case 's':
-            moveBack = true;
-            break;
-    }
-});
+function keyUp(event){
+    keyboard[event.keyCode] = false;
+}
 
-window.addEventListener("keyup", function(e){
-    switch( e.key){
-        case 'w':
-            moveFront = false;
-            break;
-        case 'a':
-            moveLeft = false;
-            break;
-        case 'd':
-            moveRight = false;
-            break;
-        case 's':
-            moveBack = false;
-            break;
-    }
-});
+window.addEventListener('keydown', keyDown);
+window.addEventListener('keyup', keyUp);
 
 function moveCharacter(){
 
-
-    if( moveFront == true){
-        lookAt.z -= 10;
-        camera.position.x = lookAt.x;
-        camera.position.y = lookAt.y;
-        camera.position.z = lookAt.z+400;
-        //camera.position.z -= 10;
-        scene.getObjectByName('character').position.z -= 10;
-        //console.log(scene.getObjectByName('character').position.z);
+    if(keyboard[87]){ // W key
+        camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
+        camera.position.z -= -Math.cos(camera.rotation.y) * player.speed;
     }
-    if( moveLeft == true){
-
-        lookAt.y += 0.05;
-        camera.position.x = lookAt.x;
-        camera.position.y = lookAt.y;
-        camera.position.z = lookAt.z+400;
-        scene.getObjectByName('character').rotation.y += 0.05;
+    if(keyboard[83]){ // S key
+        camera.position.x += Math.sin(camera.rotation.y) * player.speed;
+        camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
     }
-    if( moveRight == true){
-        lookAt.y -= 0.05;
-        camera.position.x = lookAt.x;
-        camera.position.y = lookAt.y;
-        camera.position.z = lookAt.z+400;
-        scene.getObjectByName('character').rotation.y -= 0.05;
+    if(keyboard[65]){ // A key
+        // Redirect motion by 90 degrees
+        camera.position.x += Math.sin(camera.rotation.y + Math.PI/2) * player.speed;
+        camera.position.z += -Math.cos(camera.rotation.y + Math.PI/2) * player.speed;
     }
-    if( moveBack == true){
-        lookAt.z += 10;
-        camera.position.x = lookAt.x;
-        camera.position.y = lookAt.y;
-        camera.position.z = lookAt.z+400;
-        //camera.position.z += 10;
-        scene.getObjectByName('character').position.z += 10;
-
+    if(keyboard[68]){ // D key
+        camera.position.x += Math.sin(camera.rotation.y - Math.PI/2) * player.speed;
+        camera.position.z += -Math.cos(camera.rotation.y - Math.PI/2) * player.speed;
     }
 
-
-
+    // Keyboard turn inputs
+    if(keyboard[37]){ // left arrow key
+        camera.rotation.y -= player.turnSpeed;
+    }
+    if(keyboard[39]){ // right arrow key
+        camera.rotation.y += player.turnSpeed;
+    }
 
 }
 
@@ -261,18 +227,7 @@ function createHaunterMaterial(){
 
 function createEscenari(){
 
-    THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-    //var material = new THREE.MeshPhongMaterial();
-    var mtlLoader = new THREE.MTLLoader();
-    mtlLoader.load( 'Escenari.mtl', function( materials ) {
-        materials.preload();
-        var objLoader = new THREE.OBJLoader();
-        objLoader.setMaterials( materials );
-        objLoader.load( 'assets/Escenari.obj', function ( object ) {
-            object.position.y = - 95;
-            scene.add( object );
-        }, onProgress, onError );
-    });
+
 }
 
 
@@ -280,3 +235,4 @@ function createEscenari(){
 
 
 init();
+
