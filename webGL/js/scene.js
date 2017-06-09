@@ -9,18 +9,20 @@ var player = { height:1.8, speed:0.2, turnSpeed:Math.PI*0.02, canShoot:0 };
 var USE_WIREFRAME = false;
 var min_c;
 var max_c;
-
+var kills = 0;
 var loadingScreen = {
     scene: new THREE.Scene(),
     camera: new THREE.PerspectiveCamera(90, 1280/720, 0.1, 100),
     box: new THREE.Mesh(
-        new THREE.BoxGeometry(0.5,0.5,0.5),
+        new THREE.SphereGeometry(0.5, 0.5, 0.5),
+        //new THREE.BoxGeometry(0.5,0.5,0.5),
         new THREE.MeshBasicMaterial({ color:0x4444ff })
     )
 };
 var loadingManager = null;
 var RESOURCES_LOADED = false;
 var index = 0;
+
 
 // Models index
 var models = {
@@ -73,6 +75,7 @@ function init(){
 
 
     createEscenari();
+
     //backgroundMusic();
     /*meshFloor = new THREE.Mesh(
         new THREE.PlaneGeometry(20,20, 10,10),
@@ -83,17 +86,8 @@ function init(){
     scene.add(meshFloor);*/
 
 
-    ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
+    createLight();
 
-    for (i=0; i < 4; i++){
-        light = new THREE.PointLight(0xffffff, 2, 18);
-        light.castShadow = true;
-        light.shadow.camera.near = 0.1;
-        light.shadow.camera.far = 25;
-        light.position.set(Math.pow(-1,i)*30,Math.pow(-1,(i+1))*10 ,0);
-        scene.add(light);
-    }
 
 
     for( var _key in models ){
@@ -144,6 +138,83 @@ function init(){
     document.body.appendChild(renderer.domElement);
 
     animate();
+}
+
+function createLight(){
+
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    light = new THREE.SpotLight(0xffffff, 5, 18);
+    light.castShadow = true;
+    light.shadow.camera.near = 0.1;
+    light.shadow.camera.far = 25;
+    light.position.set(30,10,10);
+    scene.add(light);
+    console.log("added");
+
+    light2 = new THREE.SpotLight(0xffffff, 5, 18);
+    light2.castShadow = true;
+    light2.shadow.camera.near = 0.1;
+    light2.shadow.camera.far = 25;
+    light2.position.set(0,1,0);
+    scene.add(light2);
+    console.log("added");
+
+    light3 = new THREE.SpotLight(0xffffff, 5, 18);
+    light3.castShadow = true;
+    light3.shadow.camera.near = 0.1;
+    light3.shadow.camera.far = 25;
+    light3.position.set(30,10,30);
+    scene.add(light3);
+    console.log("added");
+
+    light4 = new THREE.SpotLight(0xffffff, 5, 18);
+    light4.castShadow = true;
+    light4.shadow.camera.near = 0.1;
+    light4.shadow.camera.far = 25;
+    light4.position.set(-30,10,-30);
+    scene.add(light4);
+    console.log("added");
+}
+
+
+function createHaunter(){
+    var material = new THREE.MeshPhongMaterial();
+
+    loader = new THREE.OBJLoader();
+    loader.load('assets/haunter.obj', function(object){
+        object.traverse(function (child) {
+            if(child instanceof  THREE.Mesh){
+
+                child.material = createHaunterMaterial();
+                child.receiveShadow = true;
+                child.castShadow = true;
+            }
+        });
+        object.name = 'character';
+        object.position.set(Math.random() * 100, 1, Math.random() * 100);
+        object.scale.set(0.0025,0.0025,0.0025);
+        object.rotation.y = 3.25;
+        min_c = new THREE.Vector3(object.position.x, object.position.y-100, object.position.z-100);
+        max_c = new THREE.Vector3(object.position.x, object.position.y+100, object.position.z+100);
+        meshes['character'] = object;
+        //haunters[i] = object;
+        scene.add(object);
+    });
+
+}
+
+function createHaunterMaterial(){
+    var earthTexture = new THREE.Texture();
+    var loader = new THREE.ImageLoader();
+    loader.load('assets/HaunterTexture.jpg' , function(image) {
+        earthTexture.image = image;
+        earthTexture.needsUpdate = true;
+    });
+    var earthMaterial = new THREE.MeshPhongMaterial();
+    earthMaterial.map = earthTexture;
+    return earthMaterial;
 }
 
 function createEscenari(){
@@ -209,42 +280,7 @@ function createEscenari(){
 }
 
 
-function createHaunter(){
-    var material = new THREE.MeshPhongMaterial();
 
-    loader = new THREE.OBJLoader();
-    loader.load('assets/haunter.obj', function(object){
-        object.traverse(function (child) {
-            if(child instanceof  THREE.Mesh){
-
-                child.material = createHaunterMaterial();
-                child.receiveShadow = true;
-                child.castShadow = true;
-            }
-        });
-        object.name = 'character';
-        object.position.set(0,1,0);
-        object.scale.set(0.0025,0.0025,0.0025);
-        object.rotation.y = 3.25;
-        min_c = new THREE.Vector3(object.position.x, object.position.y-100, object.position.z-100);
-        max_c = new THREE.Vector3(object.position.x, object.position.y+100, object.position.z+100);
-        meshes['character'] = object;
-        scene.add(object);
-    });
-
-}
-
-function createHaunterMaterial(){
-    var earthTexture = new THREE.Texture();
-    var loader = new THREE.ImageLoader();
-    loader.load('assets/HaunterTexture.jpg' , function(image) {
-        earthTexture.image = image;
-        earthTexture.needsUpdate = true;
-    });
-    var earthMaterial = new THREE.MeshPhongMaterial();
-    earthMaterial.map = earthTexture;
-    return earthMaterial;
-}
 function planeMaterial(){
     var earthTexture = new THREE.Texture();
     var loader = new THREE.ImageLoader();
@@ -280,6 +316,7 @@ function backgroundMusic(){
 
 function animate(){
 
+
     // Play the loading screen until resources are loaded.
     if( RESOURCES_LOADED == false ){
         requestAnimationFrame(animate);
@@ -305,8 +342,15 @@ function animate(){
         }
 
         bullets[index].position.add(bullets[index].velocity);
-        if(collisionBullet(bullets[index])){
-            console.log('dead');
+        if( scene.getObjectByName('character')) {
+            if (collisionBullet(bullets[index])) {
+                scene.remove(scene.getObjectByName('character'));
+                document.getElementById('kills').innerHTML = "DEAD";
+                kills++;
+                document.getElementById('kills').innerHTML = kills;
+                //console.log('dead');
+                createHaunter();
+            }
         }
     }
 
@@ -400,13 +444,29 @@ function animate(){
         camera.rotation.z
     );
 
-    renderer.render(scene, camera);
+    if( scene.getObjectByName('character')){
+        setupAI();
+        if(collision()){
+            var h1 = document.createElement('h1');
+            h1.innerHTML = "GAME OVER";
+            var div = document.getElementById('gameover');
+            div.appendChild(h1);
 
-    if(collision()){
-        console.log("collision");
+        }
     }
 
 
+    renderer.render(scene, camera);
+
+
+
+
+}
+
+function setupAI(){
+    var char = scene.getObjectByName('character');
+    char.lookAt(camera.position);
+    char.translateOnAxis(char.worldToLocal(new THREE.Vector3(camera.position.x,camera.position.y,camera.position.z)), 0.00001);
 }
 
 function createEnviroment(){
