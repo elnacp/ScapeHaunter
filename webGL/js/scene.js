@@ -1,12 +1,14 @@
 
 var scene, camera, renderer, mesh, clock;
-var meshFloor, ambientLight, light;
-
+var meshFloor, ambientLight;
+var lights = {};
 var crate, crateTexture, crateNormalMap, crateBumpMap;
 var modelArma;
 var keyboard = {};
 var player = { height:1.8, speed:0.2, turnSpeed:Math.PI*0.02, canShoot:0 };
 var USE_WIREFRAME = false;
+var min_c;
+var max_c;
 
 var loadingScreen = {
     scene: new THREE.Scene(),
@@ -29,8 +31,8 @@ var models = {
         castShadow:false
     },
     uzi2: {
-        obj:"models/uziLong.obj",
-        mtl:"models/uziLong.mtl",
+        obj:"models/flamethrowerHandle.obj",
+        mtl:"models/flamethrowerHandle.mtl",
         mesh: null,
         castShadow:false
     },
@@ -70,26 +72,28 @@ function init(){
     };
 
 
-
-    meshFloor = new THREE.Mesh(
+    createEscenari();
+    //backgroundMusic();
+    /*meshFloor = new THREE.Mesh(
         new THREE.PlaneGeometry(20,20, 10,10),
         new THREE.MeshPhongMaterial({color:0xffffff, wireframe:USE_WIREFRAME})
     );
     meshFloor.rotation.x -= Math.PI / 2;
     meshFloor.receiveShadow = true;
-    scene.add(meshFloor);
+    scene.add(meshFloor);*/
 
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
 
-    light = new THREE.PointLight(0xffffff, 0.8, 18);
-    light.position.set(-3,6,-3);
-    light.castShadow = true;
-    light.shadow.camera.near = 0.1;
-    light.shadow.camera.far = 25;
-    scene.add(light);
-
+    for (i=0; i < 4; i++){
+        light = new THREE.PointLight(0xffffff, 2, 18);
+        light.castShadow = true;
+        light.shadow.camera.near = 0.1;
+        light.shadow.camera.far = 25;
+        light.position.set(Math.pow(-1,i)*30,Math.pow(-1,(i+1))*10 ,0);
+        scene.add(light);
+    }
 
 
     for( var _key in models ){
@@ -142,31 +146,109 @@ function init(){
     animate();
 }
 
+function createEscenari(){
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.load("assets/Escenari.mtl", function(materials){
+
+        materials.preload();
+        var objLoader = new THREE.OBJLoader();
+        objLoader.setMaterials(materials);
+
+        objLoader.load("assets/Escenari.obj", function(mesh){
+
+            mesh.traverse(function(node){
+                if( node instanceof THREE.Mesh ){
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
+            scene.add(mesh);
+            mesh.position.set(0, 0, 0);
+            mesh.scale.set(0.10, 0.10, 0.10);
+            mesh.rotation.y = -Math.PI/4;
+        });
+
+    });
+
+    mtlLoader.load("assets/fence.mtl", function(materials){
+
+        materials.preload();
+        var objLoader = new THREE.OBJLoader();
+        objLoader.setMaterials(materials);
+
+        objLoader.load("assets/fence.obj", function(mesh){
+
+            mesh.traverse(function(node){
+                if( node instanceof THREE.Mesh ){
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
+            scene.add(mesh);
+            mesh.position.set(0, 0, 0);
+            mesh.scale.set(0.10, 0.10, 0.10);
+            mesh.rotation.y = -Math.PI/4;
+        });
+    });
+
+    var material = new THREE.MeshPhongMaterial();
+
+    loader = new THREE.OBJLoader();
+    loader.load('assets/Plane.obj', function(object1){
+        object1.traverse(function (child) {
+            if(child instanceof  THREE.Mesh){
+
+                child.material = planeMaterial();
+                child.receiveShadow = true;
+                child.castShadow = true;
+            }
+        });
+        object1.position.set(0, 0, 0);
+        scene.add(object1);
+    });
+}
+
+
 function createHaunter(){
     var material = new THREE.MeshPhongMaterial();
+
     loader = new THREE.OBJLoader();
     loader.load('assets/haunter.obj', function(object){
         object.traverse(function (child) {
             if(child instanceof  THREE.Mesh){
+
                 child.material = createHaunterMaterial();
                 child.receiveShadow = true;
                 child.castShadow = true;
-                child.name = "model";
             }
         });
         object.name = 'character';
         object.position.set(0,1,0);
         object.scale.set(0.0025,0.0025,0.0025);
         object.rotation.y = 3.25;
+        min_c = new THREE.Vector3(object.position.x, object.position.y-100, object.position.z-100);
+        max_c = new THREE.Vector3(object.position.x, object.position.y+100, object.position.z+100);
         meshes['character'] = object;
         scene.add(object);
     });
+
 }
 
 function createHaunterMaterial(){
     var earthTexture = new THREE.Texture();
     var loader = new THREE.ImageLoader();
     loader.load('assets/HaunterTexture.jpg' , function(image) {
+        earthTexture.image = image;
+        earthTexture.needsUpdate = true;
+    });
+    var earthMaterial = new THREE.MeshPhongMaterial();
+    earthMaterial.map = earthTexture;
+    return earthMaterial;
+}
+function planeMaterial(){
+    var earthTexture = new THREE.Texture();
+    var loader = new THREE.ImageLoader();
+    loader.load('assets/background.png' , function(image) {
         earthTexture.image = image;
         earthTexture.needsUpdate = true;
     });
@@ -183,6 +265,17 @@ function onResourcesLoaded(){
     meshes["arma"].position.set(0,2,0);
     meshes["arma"].scale.set(10,10,10);
     scene.add(meshes["arma"]);
+}
+
+function backgroundMusic(){
+    var listener = new THREE.AudioListener();
+    var audioLoader = new THREE.AudioLoader();
+    var sound2 = new THREE.PositionalAudio( listener );
+    audioLoader.load( 'assets/Cancion del titere.mp3', function( buffer ) {
+        sound2.setBuffer( buffer );
+        sound2.setRefDistance( 20 );
+        sound2.play();
+    });
 }
 
 function animate(){
@@ -212,6 +305,9 @@ function animate(){
         }
 
         bullets[index].position.add(bullets[index].velocity);
+        if(collisionBullet(bullets[index])){
+            console.log('dead');
+        }
     }
 
     if(keyboard[87]){ // W
@@ -264,6 +360,7 @@ function animate(){
         setTimeout(function(){
             bullet.alive = false;
             scene.remove(bullet);
+
         }, 1000);
 
         bullets.push(bullet);
@@ -271,17 +368,18 @@ function animate(){
         player.canShoot = 10;
     }
 
-    if(keyboard[49]) { //up arrow
+    if(keyboard[49]) { //number 1
         modelArma = models.uzi.mesh.clone();
         scene.remove(meshes["arma"]);
         onResourcesLoaded();
     }
-    if(keyboard[50]) { //up arrow
+    if(keyboard[50]) { //number 2
         modelArma = models.uzi2.mesh.clone();
+
         scene.remove(meshes["arma"]);
         onResourcesLoaded();
     }
-    if(keyboard[51]) { //up arrow
+    if(keyboard[51]) { //number 3
         modelArma = models.machine.mesh.clone();
         scene.remove(meshes["arma"]);
         onResourcesLoaded();
@@ -303,12 +401,18 @@ function animate(){
     );
 
     renderer.render(scene, camera);
+
+    if(collision()){
+        console.log("collision");
+    }
+
+
 }
 
 function createEnviroment(){
     var envGeometry = new THREE.SphereGeometry(500, 500, 500);
     var envMaterial = new THREE.MeshBasicMaterial();
-    envMaterial.map = THREE.ImageUtils.loadTexture('assets/sky.jpg');
+    envMaterial.map = THREE.ImageUtils.loadTexture('assets/galaxy_starfield.png');
     envMaterial.side = THREE.BackSide;
     var envMesh = new THREE.Mesh(envGeometry, envMaterial);
     scene.add(envMesh);
@@ -316,6 +420,30 @@ function createEnviroment(){
 
 }
 
+function collision(){
+    var char = scene.getObjectByName('character');
+    if((meshes["arma"].position.x >= char.position.x-0.5) && (meshes["arma"].position.x <= char.position.x+0.5)){
+        if((meshes["arma"].position.y >= char.position.y-0.5) && (meshes["arma"].position.y <= char.position.y+0.5)){
+            if((meshes["arma"].position.z >= char.position.z-0.5) && (meshes["arma"].position.z <= char.position.z+0.5)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function collisionBullet(bullet){
+    var char = scene.getObjectByName('character');
+    if((bullet.position.x >= char.position.x-1) && (bullet.position.x <= char.position.x+1)){
+        if((bullet.position.y >= char.position.y-1) && (bullet.position.y <= char.position.y+1)){
+            if((bullet.position.z >= char.position.z-1) && (bullet.position.z <= char.position.z+1)){
+                return true;
+            }
+        }
+    }
+    return false;
+
+}
 
 function keyDown(event){
     keyboard[event.keyCode] = true;
