@@ -234,7 +234,7 @@ function createEscenari(){
                 }
             });
             scene.add(mesh);
-            mesh.position.set(0, 0, 0);
+            mesh.position.set(50, 0, -60);
             mesh.scale.set(0.10, 0.10, 0.10);
             mesh.rotation.y = -Math.PI/4;
         });
@@ -256,7 +256,7 @@ function createEscenari(){
                 }
             });
             scene.add(mesh);
-            mesh.position.set(0, 0, 0);
+            mesh.position.set(50, 0, -60);
             mesh.scale.set(0.10, 0.10, 0.10);
             mesh.rotation.y = -Math.PI/4;
         });
@@ -452,7 +452,7 @@ function animate(){
             h1.innerHTML = "GAME OVER";
             var div = document.getElementById('gameover');
             div.appendChild(h1);
-            div.appendChild(button);
+
 
         }
     }
@@ -468,7 +468,7 @@ function animate(){
 function setupAI(){
     var char = scene.getObjectByName('character');
     char.lookAt(camera.position);
-    char.translateOnAxis(char.worldToLocal(new THREE.Vector3(camera.position.x,camera.position.y,camera.position.z)), 0.00005);
+    char.translateOnAxis(char.worldToLocal(new THREE.Vector3(camera.position.x,camera.position.y,camera.position.z)), 0.00002);
 }
 
 function createEnviroment(){
