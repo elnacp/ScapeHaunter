@@ -76,7 +76,7 @@ function init(){
 
     createEscenari();
 
-    //backgroundMusic();
+    backgroundMusic();
     /*meshFloor = new THREE.Mesh(
         new THREE.PlaneGeometry(20,20, 10,10),
         new THREE.MeshPhongMaterial({color:0xffffff, wireframe:USE_WIREFRAME})
@@ -193,7 +193,7 @@ function createHaunter(){
             }
         });
         object.name = 'character';
-        object.position.set(Math.random() * 100, 1, Math.random() * 100);
+        object.position.set(Math.random() * 500, 1, Math.random() * 500);
         object.scale.set(0.0025,0.0025,0.0025);
         object.rotation.y = 3.25;
         min_c = new THREE.Vector3(object.position.x, object.position.y-100, object.position.z-100);
@@ -447,10 +447,12 @@ function animate(){
     if( scene.getObjectByName('character')){
         setupAI();
         if(collision()){
+            console.log("DEAD");
             var h1 = document.createElement('h1');
             h1.innerHTML = "GAME OVER";
             var div = document.getElementById('gameover');
             div.appendChild(h1);
+            div.appendChild(button);
 
         }
     }
@@ -466,7 +468,7 @@ function animate(){
 function setupAI(){
     var char = scene.getObjectByName('character');
     char.lookAt(camera.position);
-    char.translateOnAxis(char.worldToLocal(new THREE.Vector3(camera.position.x,camera.position.y,camera.position.z)), 0.00001);
+    char.translateOnAxis(char.worldToLocal(new THREE.Vector3(camera.position.x,camera.position.y,camera.position.z)), 0.00005);
 }
 
 function createEnviroment(){
@@ -482,9 +484,9 @@ function createEnviroment(){
 
 function collision(){
     var char = scene.getObjectByName('character');
-    if((meshes["arma"].position.x >= char.position.x-0.5) && (meshes["arma"].position.x <= char.position.x+0.5)){
-        if((meshes["arma"].position.y >= char.position.y-0.5) && (meshes["arma"].position.y <= char.position.y+0.5)){
-            if((meshes["arma"].position.z >= char.position.z-0.5) && (meshes["arma"].position.z <= char.position.z+0.5)){
+    if((meshes["arma"].position.x >= char.position.x-1) && (meshes["arma"].position.x <= char.position.x+1)){
+        if((meshes["arma"].position.y >= char.position.y-1) && (meshes["arma"].position.y <= char.position.y+1)){
+            if((meshes["arma"].position.z >= char.position.z-1) && (meshes["arma"].position.z <= char.position.z+1)){
                 return true;
             }
         }
