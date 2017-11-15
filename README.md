@@ -2,8 +2,8 @@
 <h3>Proyecto para la asignatura de Sintesis de imagen.</h3>
 <h4>Miembros del proyecto</h4>
 <ul>
-  <li><b>Elna Cabot</b>: Encargada del backend</li>
-  <li><b>Andrea Garcia</b>: Encargada del frontend</li>
+  <li><b>Elna Cabot</b>: Encargada de programación y diseño del escenario</li>
+  <li><b>Andrea Garcia</b>: Encargada de programación y mecanicas del juego</li>
   
 </ul>
 
