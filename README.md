@@ -8,14 +8,13 @@
 </ul>
 
 <h4>Objetivos</h4>
-Este proyecto se va a llevar a cabo en su mayoría mediante <i><b>Javascripy</b></i> , <i><b>HTML</b></i> y <i><b>CSS</b></i>. 
+Este proyecto se va a llevar a cabo en su mayoría mediante <i><b>Javascripy</b></i>. 
 
 
 <h4>Herramientas y Software utilizado</h4>
 <ul>
   <li><b>GIT</b>: versionamiento del proyecto.</li> 
-  <li><b>THREE.JS</b>: ejecución del programa.</li>
- 
+  <li><b>WebGL</b></li>
 </ul>
 
 
