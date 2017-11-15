@@ -8,7 +8,7 @@
 </ul>
 
 <h4>Objetivos</h4>
-Este proyecto se va a llevar a cabo en su mayoría mediante <i><b>Javascripy</b></i>. 
+Este proyecto se va a llevar a cabo en su mayoría mediante <i><b>Javascript</b></i>. 
 
 
 <h4>Herramientas y Software utilizado</h4>
